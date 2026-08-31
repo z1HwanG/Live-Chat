@@ -1,0 +1,20 @@
+{
+  "name": "livechat-web",
+  "version": "1.0.0",
+  "description": "SRS6 直播聊天 Web 服务",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "hls.js": "^1.5.13",
+    "mpegts.js": "^1.7.3",
+    "mysql2": "^3.11.0",
+    "ws": "^8.18.0"
+  }
+}

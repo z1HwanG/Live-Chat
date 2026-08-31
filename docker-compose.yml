@@ -1,0 +1,16 @@
+# LiveChat 服务编排
+# SRS6 直播服务由用户自行部署，本项目仅包含 Web 服务（页面/聊天/API）。
+# 对外 HTTPS 由 Nginx / Caddy 等反向代理提供，配置见 docs/DEPLOY.md。
+
+services:
+  web:
+    build: ./web
+    container_name: livechat-web
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env
+    environment:
+      - PORT=3010
+      - DB_HOST=127.0.0.1
+      - DB_PORT=3306
+      - DB_NAME=livechat

@@ -1,0 +1,26 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# 环境变量（含密钥，勿提交）
+.env
+.env.local
+.env.*.local
+
+# 本地临时
+tmp/
+*.log
+
+# 私钥 / 证书
+*.pem
+*.key
+*.p12
+*.pfx
+ssh/*.pem
+ssh/*.key
+ssh/id_rsa
+ssh/id_ed25519
+
+# 编辑器
+.vscode/
+.idea/
