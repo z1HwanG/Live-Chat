@@ -1,4 +1,4 @@
-// 聊天客户端：WebSocket 连接、历史消息、在线人数
+// 聊天客户端：WebSocket 连接、历史消息、在线人数、管理员操作记录
 window.Chat = (function () {
   let ws = null;
   let nick = localStorage.getItem('lc_nick') || '';
@@ -41,6 +41,8 @@ window.Chat = (function () {
       case 'sys': addSys(msg.text, msg.time); break;
       case 'count': updateCount(msg.online, msg.viewers); break;
       case 'delete': removeMsg(msg.id); break;
+      case 'online_list': if (window.Admin) Admin.renderList(msg.list || []); break;
+      case 'adminlog': addSys(msg.text, Date.now(), true); break;
       case 'error': toast(msg.text); break;
     }
   }
@@ -77,9 +79,9 @@ window.Chat = (function () {
     scrollBottom();
   }
 
-  function addSys(text) {
+  function addSys(text, time, isLog) {
     const li = document.createElement('li');
-    li.className = 'msg-sys';
+    li.className = isLog ? 'msg-sys msg-log' : 'msg-sys';
     const t = document.createElement('span');
     t.textContent = text;
     li.appendChild(t);

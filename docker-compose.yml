@@ -1,16 +1,51 @@
-# LiveChat 服务编排
-# SRS6 直播服务由用户自行部署，本项目仅包含 Web 服务（页面/聊天/API）。
-# 对外 HTTPS 由 Nginx / Caddy 等反向代理提供，配置见 docs/DEPLOY.md。
+# LiveChat 一键部署编排（web + SRS + 连接线上 PostgreSQL）
+# 用法：docker compose up -d --build
+# 说明：
+#   - web: LiveChat Web 服务（页面/聊天/API/推流鉴权）
+#   - srs: SRS6 直播服务（RTMP 推流 + HTTP-FLV + HLS + WebRTC）
+#   - 数据库：连接线上已有的 PostgreSQL（livechat 库），由 DB_HOST 等环境变量指定
+#   - 默认端口为 SRS 标准端口(1935/1985/8080/8000)；若与线上其他 SRS 冲突，可在 .env 改成 1936/1986/8081/8001 等
+#   - 对外 HTTPS 由 Nginx/Caddy/OpenResty 反向代理提供，见 docs/DEPLOY.md
 
 services:
   web:
     build: ./web
     container_name: livechat-web
     restart: unless-stopped
-    network_mode: host
     env_file: .env
     environment:
-      - PORT=3010
-      - DB_HOST=127.0.0.1
-      - DB_PORT=3306
-      - DB_NAME=livechat
+      - PORT=${PORT:-3010}
+      - DB_HOST=${DB_HOST:-172.17.0.1}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-livechat}
+      - SRS_API=${SRS_API:-http://srs:1985}
+    ports:
+      - "${PORT:-3010}:3010"
+    depends_on:
+      - srs
+    networks:
+      - livechat
+
+  srs:
+    image: ossrs/srs:6
+    container_name: livechat-srs
+    restart: unless-stopped
+    environment:
+      - SRS_CANDIDATE=${SRS_CANDIDATE:-127.0.0.1}
+    ports:
+      - "${RTMP_PORT:-1935}:1935"      # RTMP 推流（OBS）
+      - "${SRS_API_PORT:-1985}:1985"   # SRS HTTP API（内部 web 用，可不对外）
+      - "${FLV_PORT:-8080}:8080"       # HTTP-FLV / HLS
+      - "${RTC_PORT:-8000}:8000/udp"   # WebRTC 媒体
+    volumes:
+      - ./srs/srs.conf:/usr/local/srs/conf/livechat.conf:ro
+    # 用 shell 替换 candidate 占位符后启动 SRS（幂等、无额外依赖）
+    command: >-
+      sh -c 'sed "s/__SRS_CANDIDATE__/$SRS_CANDIDATE/g" /usr/local/srs/conf/livechat.conf > /usr/local/srs/conf/srs.conf &&
+      exec ./objs/srs -c conf/srs.conf'
+    networks:
+      - livechat
+
+networks:
+  livechat:
+    driver: bridge

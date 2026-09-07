@@ -110,12 +110,8 @@ body {
 .player-status.err { color: var(--err); }
 
 .mode-bar {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
   display: flex;
   gap: 6px;
-  z-index: 2;
 }
 .mode-btn {
   background: rgba(0, 0, 0, 0.6);
@@ -128,11 +124,25 @@ body {
 }
 .mode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+.stage-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
 .stream-info {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;
+  min-width: 0;
+}
+.stream-info #streamTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .status-pill {
   font-size: 12px;
@@ -274,6 +284,71 @@ body {
 }
 .admin-tip { font-size: 12px; color: var(--muted); }
 
+/* ---------- 管理员：在线用户列表 ---------- */
+.admin-ban-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-ban-row label { flex: 0 0 auto; }
+.admin-ban-row input[type=number] {
+  width: 56px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  outline: none;
+  text-align: center;
+}
+.mini-btn {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1;
+}
+.mini-btn:hover { color: var(--text); border-color: var(--muted); }
+.mini-btn.danger:hover { color: var(--err); border-color: var(--err); }
+.mini-btn.warn:hover { color: var(--warn); border-color: var(--warn); }
+.mini-btn.ok:hover { color: var(--ok); border-color: var(--ok); }
+
+.admin-online-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-2);
+}
+.admin-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 12px 0; }
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid transparent;
+}
+.admin-user:hover { border-color: var(--border); }
+.admin-user-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.admin-user-nick { font-size: 13px; font-weight: 600; color: var(--text); }
+.admin-user-ip { font-size: 11px; color: var(--muted); word-break: break-all; }
+.admin-user-ops { display: flex; gap: 5px; flex: 0 0 auto; }
+
+/* 管理员操作记录（聊天区） */
+.msg-log { color: var(--accent); }
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed;
@@ -296,5 +371,6 @@ body {
     grid-template-rows: minmax(0, 45%) minmax(0, 55%);
   }
   .stage { padding: 8px; }
+  .stage-bar { flex-wrap: wrap; }
   .chat { border-left: none; border-top: 1px solid var(--border); }
 }

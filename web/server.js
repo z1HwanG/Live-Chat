@@ -10,6 +10,7 @@ const { WebSocketServer } = require('ws');
 const store = require('./db');
 
 const PORT = parseInt(process.env.PORT || '3010', 10);
+const SRS_API = process.env.SRS_API || 'http://127.0.0.1:1985'; // SRS HTTP API 基地址（compose 内为 http://srs:1985）
 const PUSH_TOKEN = process.env.PUSH_TOKEN || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const SITE_NAME = process.env.SITE_NAME || '我的直播';
@@ -95,7 +96,7 @@ app.get('/api/live/status', async (req, res) => {
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 3000);
-    const r = await fetch('http://127.0.0.1:1985/api/v1/streams/', { signal: ctrl.signal });
+    const r = await fetch(`${SRS_API}/api/v1/streams/`, { signal: ctrl.signal });
     clearTimeout(timer);
     const data = await r.json();
     const live = (data.streams || []).some(
@@ -210,12 +211,14 @@ wss.on('connection', (ws, req) => {
           const until = new Date(Date.now() + minutes * 60000);
           await store.ban(nick, until);
           broadcast({ type: 'sys', text: `${nick} 已被禁言 ${minutes} 分钟`, time: Date.now() });
+          broadcast({ type: 'adminlog', text: `管理员禁言了 ${nick} ${minutes} 分钟` });
         }
       } else if (act === 'unban') {
         const nick = String(msg.nickname || '').trim().slice(0, 16);
         if (nick) {
           await store.unban(nick);
           broadcast({ type: 'sys', text: `${nick} 已解除禁言`, time: Date.now() });
+          broadcast({ type: 'adminlog', text: `管理员解禁了 ${nick}` });
         }
       } else if (act === 'kick') {
         const nick = String(msg.nickname || '').trim().slice(0, 16);
@@ -225,6 +228,14 @@ wss.on('connection', (ws, req) => {
             w.close();
           }
         }
+        broadcast({ type: 'adminlog', text: `管理员将 ${nick} 移出直播间` });
+      } else if (act === 'get_online') {
+        const list = [];
+        for (const [w, inf] of clients) {
+          if (inf.nickname) list.push({ nickname: inf.nickname, ip: inf.ip });
+        }
+        ws.send(JSON.stringify({ type: 'online_list', list }));
+        return;
       }
       return;
     }

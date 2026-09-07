@@ -22,16 +22,18 @@
       <div class="video-wrap">
         <video id="video" autoplay muted playsinline controls></video>
         <div id="playerStatus" class="player-status">连接中…</div>
+      </div>
+      <div class="stage-bar">
+        <div class="stream-info">
+          <span id="streamTitle">直播间</span>
+          <span id="streamStatus" class="status-pill off">未开播</span>
+        </div>
         <div class="mode-bar">
           <button data-mode="auto" class="mode-btn active">自动</button>
           <button data-mode="webrtc" class="mode-btn">超低延迟</button>
           <button data-mode="flv" class="mode-btn">FLV</button>
           <button data-mode="hls" class="mode-btn">HLS</button>
         </div>
-      </div>
-      <div class="stream-info">
-        <span id="streamTitle">直播间</span>
-        <span id="streamStatus" class="status-pill off">未开播</span>
       </div>
     </section>
 
@@ -60,7 +62,15 @@
         <button id="adminLoginBtn" class="btn-primary">登录</button>
       </div>
       <div id="adminPanel" class="hidden">
-        <p class="admin-tip">管理方式：鼠标移到消息上会出现「删除」「禁言」按钮。</p>
+        <p class="admin-tip">进入管理后,在聊天区会看到操作记录</p>
+        <div class="admin-ban-row">
+          <label>禁言分钟：</label>
+          <button type="button" id="adminBanMinus" class="mini-btn">−</button>
+          <input type="number" id="adminBanMinutes" value="10" min="1" max="1440">
+          <button type="button" id="adminBanPlus" class="mini-btn">+</button>
+          <button type="button" id="adminRefresh" class="mini-btn">刷新</button>
+        </div>
+        <div id="adminOnlineList" class="admin-online-list"></div>
         <button id="adminLogoutBtn" class="btn-ghost">退出管理</button>
       </div>
       <button id="adminClose" class="modal-close">×</button>
